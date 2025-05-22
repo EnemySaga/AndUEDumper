@@ -24,7 +24,7 @@ jobs:
       uses: actions/setup-java@v3
       with:
         distribution: 'temurin'
-        java-version: '11'
+        java-version: '17'
 
     - name: Setup Android SDK
       uses: android-actions/setup-android@v2
@@ -32,8 +32,12 @@ jobs:
     - name: Install Android NDK
       run: |
         echo "Installing NDK ${{ matrix.ndk-version }}"
+        # Use a more compatible approach for sdkmanager
+        export JAVA_HOME=$JAVA_HOME_17_X64
+        export PATH=$JAVA_HOME/bin:$PATH
         yes | sdkmanager --install "ndk;${{ matrix.ndk-version }}"
         echo "NDK_HOME=$ANDROID_SDK_ROOT/ndk/${{ matrix.ndk-version }}" >> $GITHUB_ENV
+        echo "ANDROID_NDK_HOME=$ANDROID_SDK_ROOT/ndk/${{ matrix.ndk-version }}" >> $GITHUB_ENV
 
     - name: Build with NDK (ndk-build)
       run: |
@@ -110,7 +114,7 @@ jobs:
       uses: actions/setup-java@v3
       with:
         distribution: 'temurin'
-        java-version: '11'
+        java-version: '17'
 
     - name: Setup Android SDK
       uses: android-actions/setup-android@v2
@@ -118,11 +122,18 @@ jobs:
     - name: Install Android NDK
       run: |
         echo "Installing NDK ${{ matrix.ndk-version }}"
+        # Use a more compatible approach for sdkmanager
+        export JAVA_HOME=$JAVA_HOME_17_X64
+        export PATH=$JAVA_HOME/bin:$PATH
         yes | sdkmanager --install "ndk;${{ matrix.ndk-version }}"
         echo "NDK_HOME=$ANDROID_SDK_ROOT/ndk/${{ matrix.ndk-version }}" >> $GITHUB_ENV
+        echo "ANDROID_NDK_HOME=$ANDROID_SDK_ROOT/ndk/${{ matrix.ndk-version }}" >> $GITHUB_ENV
 
     - name: Install CMake
       run: |
+        # Use a more compatible approach for sdkmanager
+        export JAVA_HOME=$JAVA_HOME_17_X64
+        export PATH=$JAVA_HOME/bin:$PATH
         yes | sdkmanager --install "cmake;3.22.1"
         echo "CMAKE_HOME=$ANDROID_SDK_ROOT/cmake/3.22.1" >> $GITHUB_ENV
         echo "$ANDROID_SDK_ROOT/cmake/3.22.1/bin" >> $GITHUB_PATH
