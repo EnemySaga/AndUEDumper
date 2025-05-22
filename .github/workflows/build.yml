@@ -58,7 +58,7 @@ jobs:
         ls -la build/libs/${{ matrix.abi }} || echo "No artifacts found"
 
     - name: Upload build artifacts
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: UEDumper-${{ matrix.abi }}
         path: build/libs/${{ matrix.abi }}
@@ -71,7 +71,7 @@ jobs:
 
     steps:
     - name: Download all artifacts
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v4
       with:
         path: artifacts
 
@@ -156,7 +156,7 @@ jobs:
         ls -la cmake_build/${{ matrix.abi }} || echo "No artifacts found"
 
     - name: Upload CMake build artifacts
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: UEDumper-CMake-${{ matrix.abi }}
         path: cmake_build/${{ matrix.abi }}
