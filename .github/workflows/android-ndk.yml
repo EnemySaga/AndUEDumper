@@ -1,0 +1,47 @@
+name: Build lib.so for Android (NDK)
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    env:
+      ANDROID_NDK_VERSION: "r26d"
+      ABI: arm64-v8a
+      API_LEVEL: 21
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Install dependencies
+      run: sudo apt-get update && sudo apt-get install -y ninja-build unzip
+
+    - name: Download and set up Android NDK
+      run: |
+        wget https://dl.google.com/android/repository/android-ndk-${ANDROID_NDK_VERSION}-linux.zip
+        unzip android-ndk-${ANDROID_NDK_VERSION}-linux.zip
+        echo "ANDROID_NDK=$PWD/android-ndk-${ANDROID_NDK_VERSION}" >> $GITHUB_ENV
+
+    - name: Configure and build with CMake
+      run: |
+        cmake -B build \
+          -S AndUEDumper \
+          -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK/build/cmake/android.toolchain.cmake \
+          -DANDROID_ABI=${ABI} \
+          -DANDROID_PLATFORM=android-${API_LEVEL} \
+          -DCMAKE_BUILD_TYPE=Release \
+          -G Ninja
+        cmake --build build
+
+    - name: Upload built lib.so
+      uses: actions/upload-artifact@v3
+      with:
+        name: lib.so
+        path: build/lib*.so
