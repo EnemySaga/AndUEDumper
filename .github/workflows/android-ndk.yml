@@ -1,4 +1,4 @@
-name: Build lib.so for Android (NDK)
+name: Build lib.so (Android NDK)
 
 on:
   push:
@@ -13,35 +13,39 @@ jobs:
 
     env:
       ANDROID_NDK_VERSION: "r26d"
-      ABI: arm64-v8a
-      API_LEVEL: 21
 
     steps:
-    - name: Checkout repository
+    - name: Checkout this workflow repository (if forked)
       uses: actions/checkout@v3
 
     - name: Install dependencies
-      run: sudo apt-get update && sudo apt-get install -y ninja-build unzip
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y git wget unzip build-essential
 
-    - name: Download and set up Android NDK
+    - name: Clone AndUEDumper with submodules
+      run: |
+        git clone --recursive https://github.com/MJx0/AndUEDumper
+        cd AndUEDumper/AndUEDumper
+        make clean
+
+    - name: Download Android NDK
       run: |
         wget https://dl.google.com/android/repository/android-ndk-${ANDROID_NDK_VERSION}-linux.zip
-        unzip android-ndk-${ANDROID_NDK_VERSION}-linux.zip
+        unzip -q android-ndk-${ANDROID_NDK_VERSION}-linux.zip
         echo "ANDROID_NDK=$PWD/android-ndk-${ANDROID_NDK_VERSION}" >> $GITHUB_ENV
 
-    - name: Configure and build with CMake
+    - name: Set up environment variables for NDK
       run: |
-        cmake -B build \
-          -S AndUEDumper \
-          -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK/build/cmake/android.toolchain.cmake \
-          -DANDROID_ABI=${ABI} \
-          -DANDROID_PLATFORM=android-${API_LEVEL} \
-          -DCMAKE_BUILD_TYPE=Release \
-          -G Ninja
-        cmake --build build
+        echo "PATH=$ANDROID_NDK:$ANDROID_NDK/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH" >> $GITHUB_ENV
+
+    - name: Build lib.so using make
+      run: |
+        cd AndUEDumper/AndUEDumper
+        make
 
     - name: Upload built lib.so
       uses: actions/upload-artifact@v4
       with:
-        name: lib.so
-        path: build/lib*.so
+        name: libAndUEDumper.so
+        path: AndUEDumper/AndUEDumper/lib*.so
