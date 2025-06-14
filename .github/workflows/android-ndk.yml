@@ -15,19 +15,19 @@ jobs:
       ANDROID_NDK_VERSION: "r26d"
 
     steps:
-    - name: Checkout this workflow repository (if forked)
+    - name: Checkout repository
       uses: actions/checkout@v3
+      with:
+        submodules: 'recursive'
 
     - name: Install dependencies
       run: |
         sudo apt-get update
         sudo apt-get install -y git wget unzip build-essential
 
-    - name: Clone AndUEDumper with submodules
+    - name: Init/update submodules (just in case)
       run: |
-        git clone --recursive https://github.com/MJx0/AndUEDumper
-        cd AndUEDumper/AndUEDumper
-        make clean
+        git submodule update --init --recursive
 
     - name: Download Android NDK
       run: |
@@ -35,9 +35,14 @@ jobs:
         unzip -q android-ndk-${ANDROID_NDK_VERSION}-linux.zip
         echo "ANDROID_NDK=$PWD/android-ndk-${ANDROID_NDK_VERSION}" >> $GITHUB_ENV
 
-    - name: Set up environment variables for NDK
+    - name: Set up NDK environment
       run: |
-        echo "PATH=$ANDROID_NDK:$ANDROID_NDK/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH" >> $GITHUB_ENV
+        echo "$ANDROID_NDK/toolchains/llvm/prebuilt/linux-x86_64/bin" >> $GITHUB_PATH
+
+    - name: Clean previous builds
+      run: |
+        cd AndUEDumper/AndUEDumper
+        make clean
 
     - name: Build lib.so using make
       run: |
