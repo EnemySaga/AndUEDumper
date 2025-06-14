@@ -25,9 +25,8 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y git wget unzip build-essential
 
-    - name: Init/update submodules (just in case)
-      run: |
-        git submodule update --init --recursive
+    - name: Init submodules (just in case)
+      run: git submodule update --init --recursive
 
     - name: Download Android NDK
       run: |
@@ -40,17 +39,13 @@ jobs:
         echo "$ANDROID_NDK/toolchains/llvm/prebuilt/linux-x86_64/bin" >> $GITHUB_PATH
 
     - name: Clean previous builds
-      run: |
-        cd AndUEDumper/AndUEDumper
-        make clean
+      run: make clean
 
     - name: Build lib.so using make
-      run: |
-        cd AndUEDumper/AndUEDumper
-        make
+      run: make
 
     - name: Upload built lib.so
       uses: actions/upload-artifact@v4
       with:
         name: libAndUEDumper.so
-        path: AndUEDumper/AndUEDumper/lib*.so
+        path: lib*.so
