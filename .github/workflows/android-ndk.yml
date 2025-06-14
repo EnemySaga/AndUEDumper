@@ -41,7 +41,7 @@ jobs:
         cmake --build build
 
     - name: Upload built lib.so
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: lib.so
         path: build/lib*.so
